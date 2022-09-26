@@ -92,7 +92,15 @@ class _MyHomePageState extends State<MyHomePage> {
     Workmanager().registerOneOffTask(
       "taskOne",
       "backUp",
-      initialDelay:const Duration(seconds: 5),
+        initialDelay:const Duration(seconds: 5),
+        constraints: Constraints(
+            networkType: NetworkType.connected,
+            requiresBatteryNotLow: true,
+            requiresCharging: true,
+            requiresDeviceIdle: true,
+            requiresStorageNotLow: true
+        ),
+        existingWorkPolicy: ExistingWorkPolicy.append
     );
   }
   @override
