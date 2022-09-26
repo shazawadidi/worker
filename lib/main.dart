@@ -1,5 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:worker/login_page.dart';
 import 'package:worker/util/bloc_observer.dart';
 import 'package:workmanager/workmanager.dart';
@@ -10,7 +13,13 @@ import 'home_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(callbackDispatcher);
+  Workmanager().initialize(callbackDispatcher,isInDebugMode: true);
+  Workmanager().registerPeriodicTask(
+    "2",
+    "simplePeriodicTask",
+
+    frequency: const Duration(minutes: 1),
+  );
   Bloc.observer = AppBlocObserver();
   runApp(  LoginScaffold());
 
@@ -18,14 +27,34 @@ void main() {
 void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) {
     print("Task executing :$taskName");
-    switch(taskName)
-    {
-      case ScheduledTask.taskName:
-        ScheduledTask.control(); // calls your control code
-        break;
-    }
+    FlutterLocalNotificationsPlugin flip =   FlutterLocalNotificationsPlugin();
+    var android =  const AndroidInitializationSettings('@mipmap/ic_launcher');
+
+        ScheduledTask.control();
+        var settings =   InitializationSettings(android: android);
+        flip.initialize(settings);
+        _showNotificationWithDefaultSound(flip);
+
     return Future.value(true);
   });
+}
+Future _showNotificationWithDefaultSound(flip) async {
+
+  // Show a notification after every 15 minute with the first
+  // appearance happening a minute after invoking the method
+  var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'Update Location at ',
+      '${DateTime.now()}',
+  );
+
+  /// initialise channel platform for  Android   device.
+  var platformChannelSpecifics =   NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+   );
+  await flip.show(0, 'Notify',
+      'Your are one step away to connect with Attendance',
+      platformChannelSpecifics, payload: 'Default_Sound'
+  );
 }
 class ScheduledTask {
    static const String taskName = "control";

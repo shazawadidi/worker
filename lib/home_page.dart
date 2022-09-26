@@ -123,6 +123,14 @@ class _HomePageState extends State<HomePage> {
                               "taskOne",
                               "backUp",
                               initialDelay:const Duration(seconds: 5),
+                              constraints: Constraints(
+                                  networkType: NetworkType.connected,
+                                  requiresBatteryNotLow: true,
+                                  requiresCharging: true,
+                                  requiresDeviceIdle: true,
+                                  requiresStorageNotLow: true
+                              ),
+                                existingWorkPolicy: ExistingWorkPolicy.append
                             ),
                             builder: (context, snapshot) {
                               /// get device information
@@ -418,7 +426,9 @@ class _HomePageState extends State<HomePage> {
                     }
 
                     /// Loading
-                    return   Container();
+                    return   const Center(
+                      child: CircularProgressIndicator(color: Colors.black87),
+                    );
                   },
                 ),
               ),
